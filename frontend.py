@@ -2,7 +2,7 @@ import streamlit as st
 
 def render_interface(model, predict_fn):
     st.set_page_config(page_title="Chat de Sentimientos", page_icon="💬")
-    st.title("Chat de Análisis de Sentimientos")
+    st.title("💬 Chat de Análisis de Sentimientos")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
