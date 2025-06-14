@@ -1,71 +1,48 @@
 import streamlit as st
 
 def render_interface(model, predict_fn):
-    st.markdown("""
-    <style>
-    .sticky-title {
-    position: sticky;
-    top: 0;
-    background-color: inherit;
-    color: white;
-    z-index: 100;
-    padding: 0.5rem 0;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    border-bottom: 1px solid #ccc;
-    }
-    .positive-response {
-    background-color: #d4edda;
-    color: black;
-    padding: 0.8rem 1rem;
-    border-radius: 10px;
-    display: inline-block;
-    }
-    .negative-response {
-    background-color: #f8d7da;
-    color: black;
-    padding: 0.8rem 1rem;
-    border-radius: 10px;
-    display: inline-block;
-    }
-    </style>
-    <div class="sticky-title">Chat de Análisis de Sentimientos</div>
-    """, unsafe_allow_html=True)
+    st.set_page_config(page_title="Chat de Sentimientos", page_icon="💬")
+    st.title("💬 Chat de Análisis de Sentimientos")
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # Mostrar el historial con burbujas tipo mensajería
+    # Mostrar historial
     for entry in st.session_state.chat_history:
         with st.chat_message("user"):
             st.markdown(entry["user"])
-
         with st.chat_message("assistant"):
-            if entry["sentiment"] == "positive":
-                st.markdown(
-                    "<div class='positive-response'>✅ Sentimiento <strong>POSITIVO</strong></div>",
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(
-                    "<div class='negative-response'>❌ Sentimiento <strong>NEGATIVO</strong></div>",
-                    unsafe_allow_html=True
-                )
+            st.markdown(entry["bot"], unsafe_allow_html=True)
 
-    # Entrada del usuario
-    user_input = st.chat_input("Escribe tu mensaje para analizar el sentimiento...")
+    user_input = st.chat_input("Escribe tu mensaje...")
 
     if user_input:
-        prediction = predict_fn(model, user_input)
-        sentiment_label = "positive" if prediction == 1 else "negative"
+        # Mostrar mensaje del usuario
+        st.chat_message("user").markdown(user_input)
 
-        # Guardar en el historial
+        # Comando especial /info
+        if user_input.strip().lower() == "/info":
+            info_msg = (
+                "📘 **Información del modelo:**  \n"
+                "Este modelo fue desarrollado usando la técnica de *stacking* como parte de un proyecto "
+                "para la materia **Reconocimiento de Patrones** en la **Universidad Tecnológica de la Mixteca**.  \n\n"
+                "🔤 Está diseñado para analizar opiniones escritas en **inglés**."
+            )
+            bot_response = info_msg
+        else:
+            prediction = predict_fn(model, user_input)
+            sentiment = "Positivo" if prediction == 1 else "Negativo"
+            icon = "✅" if prediction == 1 else "❌"
+            bot_response = f"{icon} Sentimiento **{sentiment.upper()}**"
+
+        # Mostrar respuesta del bot
+        st.chat_message("assistant").markdown(bot_response, unsafe_allow_html=True)
+
+        # Guardar en historial
         st.session_state.chat_history.append({
             "user": user_input,
-            "sentiment": sentiment_label
+            "bot": bot_response
         })
-
-        st.rerun()
 
     # Botón para limpiar conversación
     if st.button("🧹 Limpiar conversación"):
