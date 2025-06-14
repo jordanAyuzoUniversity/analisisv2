@@ -1,12 +1,10 @@
 import streamlit as st
-from frontend import render_interface
 from backend import load_model, predict_sentiment
+from frontend import render_interface
 
-# Configuración general de la página
-st.set_page_config(page_title="Sentiment Predictor", layout="centered")
+# Esta línea debe ir al inicio, antes de cualquier otro comando de Streamlit
+st.set_page_config(page_title="Chat de Sentimientos", page_icon="💬")
 
-# Cargar el modelo una sola vez
 model = load_model()
-
-# Renderizar interfaz principal
 render_interface(model, predict_sentiment)
+
